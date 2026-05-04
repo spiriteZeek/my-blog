@@ -11,8 +11,8 @@
 | 框架 | Next.js 15 (App Router) | React 生态，渲染模式灵活切换 |
 | 语言 | TypeScript | 类型安全 |
 | 样式 | Tailwind CSS 4 | 原子化 CSS，快速搭建 + 完全可控 |
-| 内容 | MDX (gray-matter + next-mdx-remote) | Markdown 写作 + 可嵌入 React 组件 |
-| 代码高亮 | Shiki（行号 + 复制按钮） | 主题可定制，与 MDX 集成好 |
+| 内容 | MDX (gray-matter + next-mdx-remote v5 RSC) | Markdown 写作 + 可嵌入 React 组件，v5 通过 `next-mdx-remote/rsc` 导入，原生支持 App Router RSC |
+| 代码高亮 | rehype-pretty-code（基于 Shiki） | 基于 Shiki 的 rehype 插件，与 MDX 管线集成简单，支持行号、行高亮、复制按钮 |
 | 部署 | Vercel | Next.js 原生支持，零配置 |
 
 **关于 Contentlayer**：暂不采用。原仓库维护停滞，App Router 兼容性不稳定。先在 `lib/posts.ts` 中封装好读取逻辑，对外接口保持干净，后续可随时替换底层实现。
@@ -112,7 +112,7 @@ draft: false
 ### 博客列表页
 - 全部文章列表（排除 draft）
 - 顶部分类/标签筛选
-- 分页功能
+- 静态分页（`generateStaticParams` 生成 `/blog/page/[n]`），SEO 友好
 
 ### 标签/分类归档页
 - `/blog/tags/[tag]` — 某标签下所有文章
@@ -121,8 +121,8 @@ draft: false
 
 ### 文章详情页
 - MDX 内容渲染
-- Shiki 代码高亮（行号 + 复制按钮）
-- TOC 目录导航（悬浮侧边栏，长文章友好）
+- 代码高亮（rehype-pretty-code，行号 + 复制按钮）
+- TOC 目录导航（悬浮侧边栏，通过 remark 插件提取 MDX AST 中的 heading 节点生成）
 - 上一篇 / 下一篇文章导航
 - 相关文章推荐（同标签 / 同分类）
 
@@ -142,9 +142,17 @@ draft: false
 - 文章阅读区固定最大宽度，保证阅读舒适度
 - 暗色模式下代码块、MDX 组件样式单独适配
 
+## SEO 策略
+
+- 每篇文章的 `metadata`（title / description / og:image）从 frontmatter 自动映射，通过 `lib/metadata.ts` 中的 `generatePostMetadata()` 函数生成 Next.js Metadata 对象
+- 列表页、归档页同样通过 `generateMetadata` 设置对应的 title 和 description
+- 使用 Next.js 内置 `sitemap.ts` 自动生成 sitemap.xml
+- 使用 Next.js 内置 `robots.ts` 生成 robots.txt
+- 所有页面设置 canonical URL，避免重复内容
+
 ## 后续可扩展（当前不实现）
 
 - 全局搜索功能
 - RSS 订阅
 - 评论系统
-- RSS 订阅统计
+- 阅读量统计
