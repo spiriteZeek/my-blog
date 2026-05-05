@@ -1,8 +1,8 @@
-# My Blob - 个人技术博客
+# My Blog - 个人技术博客
 
 ## 项目概述
 
-个人技术博客，记录学习笔记、技术踩坑、项目经验。使用 Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + MDX 构建。
+个人技术博客，记录学习笔记、技术踩坑、项目经验。使用 Next.js 16 (App Router) + TypeScript + Tailwind CSS 4 + Velite MDX 构建。
 
 ## 设计规范
 
@@ -23,7 +23,7 @@
 
 ```bash
 # 生成设计系统
-python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<描述>" --design-system -p "My Blob"
+python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<描述>" --design-system -p "My Blog"
 
 # 查询具体领域（typography, color, ux, style, landing 等）
 python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<关键词>" --domain <domain>
@@ -39,6 +39,6 @@ python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<关键词>" --stack <st
 | 框架 | Next.js 15 (App Router) |
 | 语言 | TypeScript |
 | 样式 | Tailwind CSS 4 |
-| 内容 | MDX (gray-matter + next-mdx-remote v5 RSC) |
-| 代码高亮 | rehype-pretty-code (Shiki) |
+| 内容 | Velite (MDX, Zod schema 类型安全) |
+| 代码高亮 | @shikijs/rehype |
 | 部署 | Vercel |

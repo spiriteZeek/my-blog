@@ -30,7 +30,7 @@ const jetbrainsMono = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'My Blob',
+  title: 'My Blog',
   description: '个人技术博客，记录学习笔记、技术踩坑、项目经验',
 }
 

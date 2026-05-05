@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
-const SITE_URL = 'https://my-blob.dev'
-const SITE_NAME = 'My Blob'
+const SITE_URL = 'https://my-blog.zeek.asia'
+const SITE_NAME = 'My Blog'
 
 export function generatePostMetadata(post: {
   title: string

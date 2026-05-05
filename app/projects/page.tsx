@@ -5,8 +5,8 @@ export const metadata = generateListMetadata('项目', '个人项目展示')
 
 const projects = [
   {
-    name: 'My Blob',
-    description: '个人技术博客，使用 Next.js + MDX 构建',
+    name: 'My Blog',
+    description: '个人技术博客，使用 Next.js + Velite + Tailwind CSS 4 构建',
     tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'MDX'],
     link: 'https://github.com',
   },

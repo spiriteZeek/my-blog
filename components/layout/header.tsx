@@ -22,7 +22,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/80">
       <Container className="flex h-16 items-center justify-between">
         <Link href="/" className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          My Blob
+          My Blog
         </Link>
 
         {/* Desktop nav */}

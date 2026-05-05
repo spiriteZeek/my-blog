@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getAllPosts, getAllTags, getAllCategories } from '@/lib/posts'
 
-const SITE_URL = 'https://my-blob.dev'
+const SITE_URL = 'https://my-blog.zeek.asia'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts()
