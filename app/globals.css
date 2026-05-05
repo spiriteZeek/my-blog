@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-mono: var(--font-mono), Menlo, monospace;
+}
+
+pre code {
+  font-family: 'JetBrains Mono', Menlo, monospace !important;
+}
+
+/* Code block copy button */
+pre {
+  position: relative;
+}
+
+pre::after {
+  content: '复制';
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  color: #e1e4e8;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+pre:hover::after {
+  opacity: 1;
+}
+
+pre.copied::after {
+  content: '已复制!';
+  opacity: 1;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 200ms ease-out;
+}
+
+.animate-fade-up {
+  animation: fade-up 150ms ease-out;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-up {
+    animation: none;
+  }
+}

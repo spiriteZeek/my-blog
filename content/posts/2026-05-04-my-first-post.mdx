@@ -1,0 +1,40 @@
+---
+title: "用 React 18 写一个状态管理库"
+slug: my-first-post
+date: "2026-05-04"
+tags: ["React", "状态管理"]
+category: "前端"
+draft: false
+---
+
+从零实现一个轻量状态管理库的思路和实践。
+
+## 为什么需要状态管理
+
+在 React 应用中，组件间的状态共享是一个常见需求。React 自带的 Context API 虽然能用，但存在性能问题——任何 Context 值的变化都会导致所有消费者重渲染。
+
+## 设计思路
+
+核心思路是利用 `useSyncExternalStore` 这个 React 18 引入的 Hook：
+
+```typescript
+import { useSyncExternalStore } from 'react'
+
+function useStore<T>(store: Store<T>): T {
+  return useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot
+  )
+}
+```
+
+## 实现步骤
+
+1. 定义 Store 接口
+2. 实现响应式更新
+3. 添加 selector 支持
+4. 处理边缘情况
+
+## 总结
+
+通过 `useSyncExternalStore`，我们可以用极少的代码实现一个类型安全、高性能的状态管理方案。
