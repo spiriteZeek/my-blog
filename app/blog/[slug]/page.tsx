@@ -52,7 +52,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       {/* Content + TOC layout */}
       <div className="flex gap-8">
         {/* Article content */}
-        <article className="max-w-prose flex-1 leading-relaxed">
+        <article className="prose prose-zinc max-w-none dark:prose-invert">
           <MDXContent code={post.content} />
         </article>
 

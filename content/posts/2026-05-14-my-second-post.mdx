@@ -1,0 +1,142 @@
+---
+title: "无限滚动与 van-list 实践"
+slug: my-second-post
+date: "2026-05-14"
+tags: ["Vant", "无限滚动"]
+category: "前端"
+draft: false
+---
+
+Vant `van-list` 组件实现的无限滚动方案，采用 scroll 事件 + `getBoundingClientRect()`距离计算（非 Intersection Observer）。
+
+> [!info] 源码确认
+> 以下原理基于 Vant 源码 `packages/vant/src/list/List.tsx`分析。
+
+## 原理
+van-list 在列表底部放置一个 placeholder div 作为哨兵元素，通过简童滚动容器的 scroll 事件，在每次滚动时计算哨兵与容器底边的距离，当距离小于 offset（默认 300px）时触发加载。
+
+```plaintext
+用户滚动 → scroll 事件触发 → 计算 placeholder 底边与容器底边距离 → 距离 <= offset → 触发 load
+```
+
+核心检测逻辑(根据源码简化)：
+```js
+const check = () => {
+  if (loading.value || finished.value || disabled.value) return;
+
+  const scrollParentRect = getBoundingClientRect(scroller);
+  const placeholderRect = getBoundingClientRect(placeholder);
+
+  // 向下滚动：哨兵底边距容器底边的距离  <= offset
+  const isReachEage = placeholderRect.bottom - scrollParentRect.bottom <= offset;
+
+  if (isReachEage) {
+    loading.value = true;
+    emit('load');
+  }
+};
+```
+
+滚动监听使用 passive 模式性能优化：
+```js
+useEventListener('scroll', check, {
+  target: scroller,
+  passive: true,
+});
+```
+
+## 与Intersection Observer的关系
+van-list 没有使用 Intersection Observer，而是选择了传统 scroll 事件方案。两者对比如下：
+
+| 维度 | van-list(scroll+rect) | Intersection Observer方案 |
+| --- | --- | --- |
+| 触发频率 | 每次scroll事件都计算 | 只在超过阈值时回调 |
+| 性能 | passive listener缓解，但仍有开销 | 浏览器内部优化，更高效 |
+| 预加载 | 通过offset(300px)提前触发 | 通过 rootMargin 实现类似效果 |
+| 兼容性 | 全浏览器兼容 |  2019+全兼容 |
+| 实现复杂度 | 较简单直接 | 需管理 observer 生命周期 |
+
+## van-list核心属性
+
+|属性|类型|说明|
+|---|---|---|
+|`v-model:loading`|Boolean|加载状态，true 时显示 loading 且不重复触发|
+|`finished`|Boolean|是否已加载完全部数据|
+|`finished-text`|String|加载完毕提示文案|
+|`immediate-check`|Boolean|初始化时是否立即检查（常设为 false 防止首屏重复加载|
+|`offset`|Number|触发加载的距离阈值，默认300px|
+|`direction`|String|触发滚动方向，`down`（默认）或`up`|
+|`@load`|Event|触发加载的回调|
+
+## 标准实现模式
+```vue
+<van-list
+  v-model:loading="loading"
+  :finished="finished"
+  finished-text="没有更多了"
+  :immediate-check="false"
+  @load="onLoad"
+>
+  <div v-for="item in list" :key="item.id">
+    {{ item.name }}
+  </div>
+</van-list>
+```
+
+```js
+const list = ref([]);
+const loading = ref(false);
+const finished = ref(false);
+const page = ref(1);
+const pageSize = 10;
+
+function onLoad() {
+  API.getList({ pageNumber: page.value++, pageSize })
+    .then(res => {
+      list.value.push(...res.datas);
+      loading.value = false;
+      if (page.value > Math.ceil(res.total / pageSize)) {
+        finished.value = true;
+      }
+    })
+    .catch(() => { loading.value = false; });
+}
+```
+
+## 下拉刷新集成
+配合 `van-pull-refresh`实现下拉刷新 + 无限滚动的完整体验：
+```vue
+<van-list v-model:loading="loading" :finished="finished" @load="onLoad">
+  <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+    <!-- 列表内容 -->
+  </van-pull-refresh>
+</van-list>
+```
+
+```js
+function onRefresh() {
+  finished.value = false;
+  refreshing.value = true;
+  loading.value = true;
+  onLoad();
+}
+
+// onLoad 中检测 refreshing 重置状态
+function onLoad() {
+  if (refreshing.value) {
+    list.value = [];
+    refreshing.value = false;
+    page.value = 1;
+  }
+  // ...正常分页逻辑
+}
+```
+
+
+## 实战要点
+- **防重复加载**： `loading = true`期间 van-list 不会再次触发 load
+- **防切换竞态：** 切换 tab 时用`before-change`拦截，确保当前加载完成
+- **滚动位置保持：** 配合`onActivated / useScroll`在 keep-alive 缓存中恢复位置 
+- **结束判断：** `page >= Math.ceil(total / pageSize)`时标记`finished = true`
+- **错误处理：** catch中必须`loading = false`，否则列表卡死无法重试
+- **预加载距离：** 通过`offset`属性调整，默认 300px，值越大越早触发下一页加载 
